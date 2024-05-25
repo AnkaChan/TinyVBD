@@ -103,7 +103,7 @@ struct SimulatorParams {
 	int substeps = 1;
 	int numIterations = 100;
 	float dt = 0.01666666;
-	float accelerationRho = 0.05;
+	float accelerationRho = 0.5;
 	bool useAcceleration = false;
 	Vec3 gravity;
 	std::string outPath;
@@ -161,6 +161,9 @@ struct StrandSim
 		float tanAngle = 0.57735f; // 30 deg
 		params.outPath = "C:\\Data\\Test4_20Verts_30degree_withSkip_stiffness1e8";
 
+		params.useAcceleration = false;
+		params.accelerationRho = 0.5;
+
 		std::vector<float> ms;
 
 		for (size_t iV = 0; iV < numVerts; iV++)
@@ -205,13 +208,11 @@ struct StrandSim
 		}
 	}
 
-	void applyAccelerator(FloatingType omega, TVerticesMat posBeforeIter) {
+	void applyAccelerator(FloatingType omega) {
 		if (omega > 1.f)
 		{
 			strand.mVertPos = omega * (strand.mVertPos - strand.prevprevPos) + strand.prevprevPos;
 		}
-
-		strand.prevprevPos = posBeforeIter;
 	}
 
 	void initializeStiffRatio() {
@@ -403,6 +404,8 @@ struct StrandSim
 	void simulate() {
 		saveOutputs();
 		params.dt = params.dt / params.substeps;
+		TVerticesMat prevIterPos;
+		prevIterPos.resizeLike(strand.mVertPos);
 
 		for (frameId = 1; frameId < params.numFrames; frameId++)
 		{
@@ -412,10 +415,9 @@ struct StrandSim
 				float omega=1.f;
 				for (iter = 0; iter < params.numIterations; iter++)
 				{
-					TVerticesMat posBeforeIter = strand.mVertPos;
+					prevIterPos = strand.mVertPos;
 					solve();
 
-					omega = getAcceleratorOmega(iter+1, params.accelerationRho, omega);
 					if (iter % 10 == 0)
 					{
 						//std::cout << "acceleration ratio: " << omega << "\n";
@@ -423,7 +425,9 @@ struct StrandSim
 
 					if (params.useAcceleration)
 					{
-						applyAccelerator(omega, posBeforeIter);
+						omega = getAcceleratorOmega(iter + 1, params.accelerationRho, omega);
+						applyAccelerator(omega);
+						strand.prevprevPos = prevIterPos;
 					}
 				}
 
