@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
-find_package(CUDAToolkit 11 REQUIRED)
-
 project(TinyVBD LANGUAGES CXX)
 
 ## Use C++11
