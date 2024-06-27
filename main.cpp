@@ -10,7 +10,12 @@
 #endif
 
 inline bool saveJson(std::string  filePath, nlohmann::json& j, int indent = -1) {
+	std::filesystem::path path(filePath);
+
+	std::filesystem::create_directories(path.parent_path());
+
 	std::ofstream ofs(filePath);
+
 	if (ofs.is_open())
 	{
 		try
@@ -120,7 +125,7 @@ struct StrandSim
 		std::vector<float> ls;
 		float m0 = 1;
 		float m1 = 1000;
-		params.outPath = "C:\\Data\\Test4_20Verts_30degree_withSkip_stiffness1e8";
+		params.outPath = "Test4_20Verts_30degree_withSkip_stiffness1e8";		// this is a multi-platform toy app, let the files land where they do
 
 		std::vector<float> ms;
 
@@ -159,7 +164,7 @@ struct StrandSim
 		bool addSkipSpring = true;
 		float skipSpringStrength = 100;
 		float tanAngle = 0.57735f; // 30 deg
-		params.outPath = "C:\\Data\\Test4_20Verts_30degree_withSkip_stiffness1e8";
+		params.outPath = "Test4_20Verts_30degree_withSkip_stiffness1e8";	// this is a multi-platform toy app, let the files land where they do
 
 		params.useAcceleration = false;
 		params.accelerationRho = 0.5;
